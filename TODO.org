@@ -1,0 +1,23 @@
+
+
+
+* TODO Add functions to add/remove a "tag-id / tag" pairs
+
+Instead of manually adding data to =vulpea-tag-links-id-tag-pairs=, it's better to have
+functions to add or remove the pairs. This allow performing validations (to check if the
+pair is correct when adding a pair, for instance).
+
+* TODO Handle tag Hierarchy
+
+If I register a "tag-id / tag" pair for a given tag-id, and this tag-id is a sub tag (see
+[[https://orgmode.org/manual/Tag-Hierarchy.html][Tag Hierarchy]]), then also add a pair for the parent tag.
+
+Use-case: Considering a "Programming" note, with "CPP", "Python" and "Elisp" related tags,
+It could be interesting if nice if every note tagged with any of the language tags not
+only had a link to the corresponding tag but also to the "Programming" note.
+
+
+* TODO Investigate why backlinks created from the tags do not appear in vulpea-ui
+
+Since the links do exist in the database, this might be a bug in vulpea-ui or maybe
+vulpea-ui does not read from the database and parse the org-mode file directly instead.
