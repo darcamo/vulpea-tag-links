@@ -1,0 +1,30 @@
+#+TITLE: vulpea-tag-links
+
+
+Create links from tags.
+
+*Note*: The code here definitely needs improvements. It probably can be made more efficient,
+and error handling is basically missing for now. That said, it does work and demonstrate
+the functionality.
+
+
+* Example Configuration
+
+#+begin_src emacs-lisp
+(require 'vulpea-tag-links)
+
+;; Add ID tags to some notes
+(add-to-list 'vulpea-tag-links-id-tag-pairs (cons "Note1" "30eff9ce-ec75-4975-a0fd-72175f855de7"))
+(add-to-list 'vulpea-tag-links-id-tag-pairs (cons "Note2" "26be2a75-e65a-44ae-ba47-014f284f912f"))
+(add-to-list 'vulpea-tag-links-id-tag-pairs (cons "Note3" "2e7cd6cc-fd78-4427-9c89-5953cb953ca0"))
+
+;; Register the extractor
+(vulpea-tag-links-register-extractor)
+#+end_src
+
+
+Tagging a note with "Note1", "Note2" or "Note3" will now link to the corresponding note.
+
+If you already have notes with any of these tags, you might need a full db scan such that
+the extractor run in all of your notes. This can be done by calling
+=vulpea-db-sync-full-scan= with the universal prefix argument (=C-u=).
