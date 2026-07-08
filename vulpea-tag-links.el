@@ -4,6 +4,7 @@
 
 ;; Author: Darlan Cavalcante Moreira <darcamo@gmail.com>
 ;; Version: 0.1
+;; Package-Requires: ((emacs "30.2") (vulpea "2.5.0"))
 ;; Homepage: https://github.com/darcamo/cmake-integration
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
@@ -38,13 +39,19 @@
 
 ;;; Code:
 
-(defvar vulpea-tag-links-id-tag-pairs nil "A list of (ID-TAG . NOTE-ID) pairs.
+(require 'vulpea)
 
-The ID-TAG represents the tag for the note, and NOTE-ID is the ID of the note you want to link to. For example, if a note has the ID '1234,' and you want to link to it using the tag 'my-id-tag,' you would add '(\"my-id-tag\" . \"1234\")' to the list.")
+(defvar vulpea-tag-links-id-tag-pairs nil
+  "A list of `(ID-TAG . NOTE-ID)' pairs.
+
+The `ID-TAG' represents the tag for the note, and `NOTE-ID' is the `ID'
+of the note you want to link to. For example, if a note has the `ID'
+`1234', and you want to link to it using the tag \"my-id-tag\", you
+would add `(\"my-id-tag\" . \"1234\")' to the list.")
 
 
 (defun vulpea-tag-links--get-id-from-id-tag (id-tag)
-  "Get the note ID associated with the given ID-TAG from `vulpea-tag-links-id-tag-pairs`."
+  "Get the note ID associated with the given ID-TAG."
   (cdr (assoc id-tag vulpea-tag-links-id-tag-pairs)))
 
 
@@ -53,49 +60,30 @@ The ID-TAG represents the tag for the note, and NOTE-ID is the ID of the note yo
   (format "Link from tag '%s'" tag))
 
 
-(defun vulpea-tag-links--extract-fn (ctx note-data)
-  "Extract custom data from CTX and NOTE-DATA.
+(defun vulpea-tag-links--extract-fn (_ note-data)
+  "Update the links in NOTE-DATA to add links from tags.
 
-CTX is the parse context (vulpea-parse-ctx).
 NOTE-DATA is the plist of note data being processed.
 
-Returns NOTE-DATA, possibly with additional keys added."
-  ;; 1. Extract data from the AST
+The links in the returned note-data include original links plus any new
+links derived from tags that match `vulpea-tag-links-id-tag-pairs'."
   (let* ((note-id (plist-get note-data :id))
          (tags (plist-get note-data :tags))
          (links (plist-get note-data :links)))
-    (let (db-entries)
-      (dolist (tag tags)
-        (when-let*
-            ((pair (assoc tag vulpea-tag-links-id-tag-pairs))
-             (should-add-link (not (equal note-id (cdr pair))))) ; Avoid linking to self
-          (add-to-list
-           'links
-           (list
-            :dest (cdr pair)
-            :type "tag"
-            :pos 1
-            :description (vulpea-tag-links--get-link-description tag)))
+    (dolist (tag tags)
+      (when-let*
+          ((pair (assoc tag vulpea-tag-links-id-tag-pairs))
+           (should-add-link (not (equal note-id (cdr pair))))) ; Avoid linking to self
+        (add-to-list
+         'links
+         (list
+          :dest (cdr pair)
+          :type "tag"
+          :pos 1
+          :description (vulpea-tag-links--get-link-description tag)))))
 
-          (add-to-list
-           'db-entries
-           ;; Each vector must have 5 elements: Source, Destination, Type, position, description
-           (vector
-            note-id
-            (cdr pair)
-            "tag"
-            1
-            (vulpea-tag-links--get-link-description tag)))))
-
-      (if (not db-entries)
-          ;; No links were add, just return current note-data
-          note-data
-
-        ;; Insert the new links into the database
-        (emacsql (vulpea-db) [:insert :into links :values $v1] db-entries)
-
-        ;; We have links from tags. Return modified note-data with the extra link (to help other extractors)
-        (plist-put note-data :links links)))))
+    ;; Returned note-data with updated links
+    (plist-put note-data :links links)))
 
 
 (defun vulpea-tag-links-register-extractor ()
@@ -105,6 +93,7 @@ Returns NOTE-DATA, possibly with additional keys added."
     :name 'vulpea-tag-links-extractor ; Symbol identifying the extractor
     :version 1 ; Schema version for migrations
     :priority 50 ; Execution order (lower = earlier)
+    :requires-ast nil
     :extract-fn #'vulpea-tag-links--extract-fn) ; Extraction function
    ))
 
