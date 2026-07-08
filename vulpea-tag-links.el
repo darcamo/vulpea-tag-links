@@ -74,13 +74,13 @@ links derived from tags that match `vulpea-tag-links-id-tag-pairs'."
       (when-let*
           ((pair (assoc tag vulpea-tag-links-id-tag-pairs))
            (should-add-link (not (equal note-id (cdr pair))))) ; Avoid linking to self
-        (add-to-list
-         'links
+        (push
          (list
           :dest (cdr pair)
           :type "tag"
           :pos 1
-          :description (vulpea-tag-links--get-link-description tag)))))
+          :description (vulpea-tag-links--get-link-description tag))
+         links)))
 
     ;; Returned note-data with updated links
     (plist-put note-data :links links)))
