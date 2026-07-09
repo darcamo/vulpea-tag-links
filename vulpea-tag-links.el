@@ -94,6 +94,8 @@ links derived from tags that match `vulpea-tag-links-id-tag-pairs'."
     :version 1 ; Schema version for migrations
     :priority 50 ; Execution order (lower = earlier)
     :requires-ast nil
+    :worker-safe t
+    :worker-lib 'vulpea-tag-links
     :extract-fn #'vulpea-tag-links--extract-fn) ; Extraction function
    ))
 
