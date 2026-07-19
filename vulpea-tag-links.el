@@ -5,7 +5,7 @@
 ;; Author: Darlan Cavalcante Moreira <darcamo@gmail.com>
 ;; Version: 0.1
 ;; Package-Requires: ((emacs "30.2") (vulpea "2.5.0"))
-;; Homepage: https://github.com/darcamo/cmake-integration
+;; Homepage: https://github.com/darcamo/vulpea-tag-links
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
