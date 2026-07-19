@@ -1,30 +1,34 @@
-#+TITLE: vulpea-tag-links
+#+TITLE: Vulpea Tag Links
 
 
-Create links from tags.
+/Create links from tags in Vulpea/
 
-*Note*: The code here definitely needs improvements. It probably can be made more efficient,
-and error handling is basically missing for now. That said, it does work and demonstrate
-the functionality.
+When working with [[https://en.wikipedia.org/wiki/Personal_knowledge_management][Personal Knowledge Management (PKM)]] systems, users have varying preferences, and each tool offers its own strengths and unique approaches. A key component of PKM systems is the interlinking of notes to form a knowledge graph or network. While most tools support the concept of "tags," their implementation varies significantly.
 
+In tools like [[https://github.com/d12frosted/vulpea][vulpea]], tags are entirely independent of the connections between notes, serving simply as additional metadata. In contrast, tools like [[https://logseq.com/][Logseq]] treat tags as first-class entities, where tagging a note inherently means linking it to the note that represents the tag.
+
+This plugin bridges the gap between these two approaches. With this system, you can define "ID-based tags" linked to specific notes. Tagging any note with one of these IDs will automatically create a graph link from that note to the corresponding note, as supported in Vulpea's note architecture.
+
+
+*Note*: This plugin is still a work in progress. While functional, it may require optimization and better error handling.
 
 * Example Configuration
+
+The only thing you need to do is to add the =(some-tag-id . some-note-id)= cons cells for every tag-id/note-id pair you want to =vulpea-tag-links-id-tag-pairs=, and then call =vulpea-tag-links-register-extractor= to register the plugin as below.
 
 #+begin_src emacs-lisp
 (require 'vulpea-tag-links)
 
-;; Add ID tags to some notes
+;; Add ID tags linked to specific notes
 (add-to-list 'vulpea-tag-links-id-tag-pairs (cons "Note1" "30eff9ce-ec75-4975-a0fd-72175f855de7"))
 (add-to-list 'vulpea-tag-links-id-tag-pairs (cons "Note2" "26be2a75-e65a-44ae-ba47-014f284f912f"))
 (add-to-list 'vulpea-tag-links-id-tag-pairs (cons "Note3" "2e7cd6cc-fd78-4427-9c89-5953cb953ca0"))
 
-;; Register the extractor
+;; Register the extractor so Vulpea recognizes the custom tags
 (vulpea-tag-links-register-extractor)
 #+end_src
 
+With the setup above, tagging any note with "Note1," "Note2," or "Note3" will create a graph link to their respective notes.
 
-Tagging a note with "Note1", "Note2" or "Note3" will now link to the corresponding note.
-
-If you already have notes with any of these tags, you might need a full db scan such that
-the extractor run in all of your notes. This can be done by calling
+*Note*: If notes with these tags already exist in your database, you may need to initiate a full database scan to ensure the extractor processes all notes. This can be done by calling
 =vulpea-db-sync-full-scan= with the universal prefix argument (=C-u=).
